@@ -8,7 +8,7 @@
               v-model="getTags"
               label="Метка"
               :error-messages="errors.tags"
-              @blur="emitUpdate"
+              @blur="emitSave"
             />
           </VCol>
 
@@ -26,7 +26,7 @@
               v-model="localAccount.login"
               label="Логин"
               :error-messages="errors.login"
-              @blur="emitUpdate"
+              @blur="emitSave"
             />
           </VCol>
 
@@ -36,7 +36,7 @@
               label="Пароль"
               type="password"
               :error-messages="errors.password"
-              @blur="emitUpdate"
+              @blur="emitSave"
             />
           </VCol>
           <VCol v-else cols="12" sm="3"></VCol>
@@ -61,7 +61,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'update', account: Account): void
+  (e: 'save', account: Account): void
   (e: 'delete', accountId: string): void
 }>()
 
@@ -83,9 +83,9 @@ const errors = reactive({
   password: [] as string[],
 })
 
-function emitUpdate() {
-  validate()
-  emit('update', { ...localAccount })
+function emitSave() {
+  if (!validate()) return
+  emit('save', { ...localAccount })
 }
 
 function validate() {
@@ -100,13 +100,14 @@ function validate() {
     if (!localAccount.password) errors.password.push('Обязательное поле')
     if ((localAccount.password || '').length > 100) errors.password.push('Максимум 100 символов')
   }
+  return Object.values(errors).every((entity) => entity.length === 0)
 }
 
 function onTypeChange() {
   if (localAccount.type === 'LDAP') {
     localAccount.password = null
   }
-  emitUpdate()
+  emitSave()
 }
 
 watch(

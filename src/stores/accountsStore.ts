@@ -5,24 +5,21 @@ import { ref, watch } from 'vue'
 export const useAccountStore = defineStore('account', () => {
   const accounts = ref<Account[]>(loadFromLocalStorage())
 
-  function addAccount() {
-    accounts.value.push({
-      id: crypto.randomUUID(),
-      tags: [],
-      type: 'Локальная',
-      login: '',
-      password: '',
-    })
+  function addAccount(account: Account): void {
+    accounts.value.push(sanitizeAccount(account))
   }
 
-  function removeAccount(id: string) {
+  function removeAccount(id: string): void {
     accounts.value = accounts.value.filter((acc) => acc.id !== id)
   }
 
-  function updateAccount(updated: Account) {
-    const index = accounts.value.findIndex((acc) => acc.id === updated.id)
+  function saveAccount(account: Account): void {
+    const index = accounts.value.findIndex((acc) => acc.id === account.id)
+    const sanitizedAccount = sanitizeAccount(account)
     if (index !== -1) {
-      accounts.value[index] = sanitizeAccount(updated)
+      accounts.value[index] = sanitizedAccount
+    } else {
+      accounts.value.push(sanitizedAccount)
     }
   }
 
@@ -54,6 +51,6 @@ export const useAccountStore = defineStore('account', () => {
     accounts,
     addAccount,
     removeAccount,
-    updateAccount,
+    saveAccount,
   }
 })
