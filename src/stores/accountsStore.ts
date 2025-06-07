@@ -1,14 +1,6 @@
+import type { Account } from '@/models'
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
-
-export interface Account {
-  id: string
-  label: string
-  tags: { text: string }[]
-  type: 'LDAP' | 'Локальная'
-  login: string
-  password: string | null
-}
 
 export const useAccountStore = defineStore('account', () => {
   const accounts = ref<Account[]>(loadFromLocalStorage())
@@ -16,7 +8,6 @@ export const useAccountStore = defineStore('account', () => {
   function addAccount() {
     accounts.value.push({
       id: crypto.randomUUID(),
-      label: '',
       tags: [],
       type: 'Локальная',
       login: '',
@@ -36,22 +27,15 @@ export const useAccountStore = defineStore('account', () => {
   }
 
   function sanitizeAccount(account: Account): Account {
-    const tags = account.label
-      .split(';')
-      .map((tag) => tag.trim())
-      .filter(Boolean)
-      .map((text) => ({ text }))
-
     return {
       ...account,
-      tags,
       password: account.type === 'LDAP' ? null : account.password,
     }
   }
 
   function loadFromLocalStorage(): Account[] {
     try {
-      const raw = localStorage.getItem('accounts')
+      const raw = localStorage.getItem('ss-tt-accounts')
       return raw ? JSON.parse(raw) : []
     } catch {
       return []
@@ -61,7 +45,7 @@ export const useAccountStore = defineStore('account', () => {
   watch(
     accounts,
     (newVal) => {
-      localStorage.setItem('accounts', JSON.stringify(newVal))
+      localStorage.setItem('ss-tt-accounts', JSON.stringify(newVal))
     },
     { deep: true },
   )

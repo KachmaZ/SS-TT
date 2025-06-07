@@ -1,5 +1,11 @@
-<script setup lang="ts"></script>
-
 <template>
-  <main>Home</main>
+  <div>
+    <AccountList />
+  </div>
 </template>
+
+<script setup lang="ts">
+import AccountList from '@/components/AccountList.vue'
+</script>
+
+<style scoped lang="scss"></style>
